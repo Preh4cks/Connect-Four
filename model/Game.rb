@@ -1,14 +1,17 @@
 require_relative "../model/Config.rb" 
 require_relative "../model/Function.rb" 
+require_relative "../model/Player.rb" 
+require_relative "../model/Computer.rb" 
 
 class Game
     include Config # Game Config
     include Function # Game Function
 
-    @game_ends = false
-    @turn = nil
-    @winner = nil
-    @table = Array[]
+    @is_game_ends = false # Is Game Already Ended
+    @turn = nil # Current Playing Side Index
+    @table = Array[] # The Game Table
+    @player1 = nil
+    @player2 = nil
 
     # Initializes the Game
     def start
@@ -16,38 +19,42 @@ class Game
         printGuide
         @table = self.TABLE
         printTable @table
+        @player1 = Player.new "Player"
+        @player2 = Computer.new "Computer" # Just Change the computer to Player to make 2 player
         setFirstTurn
 
         # Main Game Loop
-        while not @game_ends
+        while not @is_game_ends
             if @turn == 1 # if player's turn
+                printTurn @player1.name
                 playerPlaceDot
                 @turn = 0
-                printTable @table
-                @game_ends = checkPattern @table, self.PLAYER_DOT
+                @is_game_ends = checkPattern(@table, self.PLAYER_DOT)
             else 
+                printTurn @player2.name
                 enemyPlaceDot
+                input = @player2.getDotIndex
                 @turn = 1
-                printTable @table
-                @game_ends = checkPattern @table, self.ENEMY_DOT
+                @is_game_ends = checkPattern(@table, self.ENEMY_DOT)
             end
+
+            printTable @table
         end
 
-        printWinner @turn
+        printWinner @turn, @player1.name, @player2.name
     end
 
     # Randomly Decide who will play the first turn
     def setFirstTurn
         @turn = rand().round()
     end
-
+    
     # Get User Input and Place Dot 
     def playerPlaceDot
-        printTurn @turn
         input = getInput
 
         if validateInput input
-            placeDot (validateInput input), self.PLAYER_DOT
+            dropDot (validateInput input), self.PLAYER_DOT
         else
             printInvalidInput
             playerPlaceDot
@@ -56,18 +63,17 @@ class Game
 
     # Get Random Column and Place Dot
     def enemyPlaceDot
-        printTurn @turn
         input = validateInput generateRandomInput    
-        placeDot input, self.ENEMY_DOT
+        dropDot input, self.ENEMY_DOT
     end
 
     # Validate dot placement, if column is full promts to place again,
     # if there is space below, use recursion to drop the dot
-    # @param column_index int 
-    # @param2 dot string
-    # @param3 row int
-    # return 
-    def placeDot column_index, dot, row = 5
+    # @param2 column_index int 
+    # @param3 dot string
+    # @param4 row int
+    # return Array 
+    def dropDot column_index, dot, row = 5
         # If column is full, prompts again
         if @table[row][column_index - 1] != self.EMPTY_DOT and row == 5
             printInvalidInput
@@ -96,7 +102,7 @@ class Game
                 @table[row][column_index - 1] = self.EMPTY_DOT
             end
             
-            placeDot column_index, dot, row - 1
+            dropDot column_index, dot, row - 1
         end
     end
 end

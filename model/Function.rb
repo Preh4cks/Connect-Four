@@ -24,15 +24,18 @@ module Function
     end
 
     # Print Winner
-    def printWinner turn
+    # @param turn int
+    # @param p1 string
+    # @param p2 string
+    def printWinner turn, p1, p2
         self.printDivider "top"
 
         if turn == 1
             puts "GAME OVER: "
-            puts "ENEMY WINS!"
+            puts p2 + " WINS!"
         else 
             puts "CONGRATULATIONS: "
-            puts "YOU WIN!"
+            puts p1 + " WINS!"
         end
 
         self.printDivider "bot"
@@ -91,13 +94,8 @@ module Function
     # @param turn int
     def printTurn turn
         self.printDivider "top"
-
-        if turn == 1
-            puts "\nPlayer's turn"
-            puts "Choose column: [1 - 7]"
-        else 
-            puts "\nEnemy's turn"
-        end
+        puts "\n" + turn + "'s turn"
+        puts "Choose column: [1 - 7]"
     end
 
     # Validates User Input [should be integer ranging from 1 to 7]
